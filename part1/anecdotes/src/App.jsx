@@ -8,11 +8,25 @@ const incrementVote = (votes, index) => {
 	return newVotes;
 };
 
+const getMostVotedIndex = (votes) => {
+	let mostVotedIndex = 0;
+	let mostVotes = 0;
+	for (let i = 0; i < votes.length; i++) {
+		if (votes[i] > mostVotes) {
+			mostVotes = votes[i];
+			mostVotedIndex = i;
+		}
+	}
+	return mostVotedIndex;
+};
+
 const Button = ({ onClick, text }) => <button onClick={onClick}>{text}</button>;
 
 const VotesLine = ({ votes, selected }) => {
 	return <p>has {votes[selected]} votes</p>;
 };
+
+const AnecdoteLine = ({ anecdotes, selected }) => <p>{anecdotes[selected]}</p>;
 
 const App = () => {
 	const anecdotes = [
@@ -31,7 +45,9 @@ const App = () => {
 
 	return (
 		<div>
-			<p>{anecdotes[selected]}</p>
+			<h1>Anecdotes</h1>
+			<h2>Anecdote of the Day</h2>
+			<AnecdoteLine anecdotes={anecdotes} selected={selected} />
 			<VotesLine votes={votes} selected={selected} />
 			<Button
 				onClick={() => {
@@ -45,6 +61,9 @@ const App = () => {
 				}}
 				text="next anecdote"
 			/>
+			<h2>Most Voted</h2>
+			<AnecdoteLine anecdotes={anecdotes} selected={getMostVotedIndex(votes)} />
+			<VotesLine votes={votes} selected={getMostVotedIndex(votes)} />
 		</div>
 	);
 };
