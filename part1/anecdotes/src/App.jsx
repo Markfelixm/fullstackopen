@@ -2,7 +2,17 @@ import { useState } from "react";
 
 const getRandomIndex = (length) => Math.floor(Math.random() * length);
 
+const incrementVote = (votes, index) => {
+	const newVotes = [...votes];
+	newVotes[index] += 1;
+	return newVotes;
+};
+
 const Button = ({ onClick, text }) => <button onClick={onClick}>{text}</button>;
+
+const VotesLine = ({ votes, selected }) => {
+	return <p>has {votes[selected]} votes</p>;
+};
 
 const App = () => {
 	const anecdotes = [
@@ -17,10 +27,18 @@ const App = () => {
 	];
 
 	const [selected, setSelected] = useState(0);
+	const [votes, setVotes] = useState(new Array(anecdotes.length).fill(0));
 
 	return (
 		<div>
 			<p>{anecdotes[selected]}</p>
+			<VotesLine votes={votes} selected={selected} />
+			<Button
+				onClick={() => {
+					setVotes(incrementVote(votes, selected));
+				}}
+				text="vote"
+			/>
 			<Button
 				onClick={() => {
 					setSelected(getRandomIndex(anecdotes.length));
