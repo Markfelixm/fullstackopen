@@ -10,10 +10,11 @@ const getAverage = (data) => (data.good - data.bad) / getTotal(data);
 
 const getPositive = (data) => (100 * data.good) / getTotal(data);
 
-const StatisticsLine = ({ text, value }) => (
-	<p>
-		{text} {value}
-	</p>
+const StatisticsTableRow = ({ text, value }) => (
+	<tr>
+		<td>{text}</td>
+		<td>{value}</td>
+	</tr>
 );
 
 const Statistics = ({ data }) => {
@@ -21,14 +22,16 @@ const Statistics = ({ data }) => {
 		return <p>No feedback given</p>;
 	}
 	return (
-		<div>
-			<StatisticsLine text="good" value={data.good} />
-			<StatisticsLine text="neutral" value={data.neutral} />
-			<StatisticsLine text="bad" value={data.bad} />
-			<StatisticsLine text="all" value={getTotal(data)} />
-			<StatisticsLine text="average" value={getAverage(data)} />
-			<StatisticsLine text="positive" value={getPositive(data)} />
-		</div>
+		<table>
+			<tbody>
+				<StatisticsTableRow text="good" value={data.good} />
+				<StatisticsTableRow text="neutral" value={data.neutral} />
+				<StatisticsTableRow text="bad" value={data.bad} />
+				<StatisticsTableRow text="all" value={getTotal(data)} />
+				<StatisticsTableRow text="average" value={getAverage(data)} />
+				<StatisticsTableRow text="positive" value={getPositive(data)} />
+			</tbody>
+		</table>
 	);
 };
 
