@@ -4,12 +4,27 @@ const Button = ({ onClick, text }) => {
 	return <button onClick={onClick}>{text}</button>;
 };
 
+const getTotal = (data) => data.good + data.neutral + data.bad;
+
+const Total = ({ data }) => <p>all {getTotal(data)}</p>;
+
+const Average = ({ data }) => (
+	<p>average {(data.good - data.bad) / getTotal(data)}</p>
+);
+
+const Positive = ({ data }) => (
+	<p>positive {(100 * data.good) / getTotal(data)} %</p>
+);
+
 const Statistics = ({ data }) => {
 	return (
 		<div>
 			<p>good {data.good}</p>
 			<p>neutral {data.neutral}</p>
 			<p>bad {data.bad}</p>
+			<Total data={data} />
+			<Average data={data} />
+			<Positive data={data} />
 		</div>
 	);
 };
