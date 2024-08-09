@@ -6,14 +6,14 @@ const Button = ({ onClick, text }) => {
 
 const getTotal = (data) => data.good + data.neutral + data.bad;
 
-const Total = ({ data }) => <p>all {getTotal(data)}</p>;
+const getAverage = (data) => (data.good - data.bad) / getTotal(data);
 
-const Average = ({ data }) => (
-	<p>average {(data.good - data.bad) / getTotal(data)}</p>
-);
+const getPositive = (data) => (100 * data.good) / getTotal(data);
 
-const Positive = ({ data }) => (
-	<p>positive {(100 * data.good) / getTotal(data)} %</p>
+const StatisticsLine = ({ text, value }) => (
+	<p>
+		{text} {value}
+	</p>
 );
 
 const Statistics = ({ data }) => {
@@ -22,12 +22,12 @@ const Statistics = ({ data }) => {
 	}
 	return (
 		<div>
-			<p>good {data.good}</p>
-			<p>neutral {data.neutral}</p>
-			<p>bad {data.bad}</p>
-			<Total data={data} />
-			<Average data={data} />
-			<Positive data={data} />
+			<StatisticsLine text="good" value={data.good} />
+			<StatisticsLine text="neutral" value={data.neutral} />
+			<StatisticsLine text="bad" value={data.bad} />
+			<StatisticsLine text="all" value={getTotal(data)} />
+			<StatisticsLine text="average" value={getAverage(data)} />
+			<StatisticsLine text="positive" value={getPositive(data)} />
 		</div>
 	);
 };
