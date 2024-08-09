@@ -17,6 +17,9 @@ const Positive = ({ data }) => (
 );
 
 const Statistics = ({ data }) => {
+	if (getTotal(data) === 0) {
+		return <p>No feedback given</p>;
+	}
 	return (
 		<div>
 			<p>good {data.good}</p>
