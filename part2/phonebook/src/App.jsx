@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import contactServices from "./services/contacts";
 
 const PersonLine = ({ person }) => (
 	<p>
@@ -49,9 +49,9 @@ const App = () => {
 	const [filterTerm, setFilterTerm] = useState("");
 
 	const hook = () => {
-		axios.get("http://localhost:3001/persons").then((response) => {
-			setPersons(response.data);
-		});
+		contactServices
+			.getAll()
+			.then((initialPersons) => setPersons(initialPersons));
 	};
 
 	useEffect(hook, []);
@@ -83,8 +83,8 @@ const App = () => {
 			return;
 		}
 		const newContact = { name: newName, number: newNumber };
-		axios.post("http://localhost:3001/persons", newContact).then((response) => {
-			setPersons([...persons].concat(response.data));
+		contactServices.create(newContact).then((createdPerson) => {
+			setPersons([...persons].concat(createdPerson));
 			setNewName("");
 			setNewNumber("");
 		});

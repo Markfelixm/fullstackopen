@@ -34,6 +34,11 @@
       "id": "a344",
       "name": "a third name posted from app",
       "number": "333-333333"
+    },
+    {
+      "id": "6f7e",
+      "name": "created with module",
+      "number": "21212121212"
     }
   ]
 }
