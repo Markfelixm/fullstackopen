@@ -16,12 +16,19 @@ const create = (newContact) =>
 
 const remove = (id) =>
 	axios
-		.delete(baseURL.concat(`/${id}`))
+		.delete(`${baseURL}/${id}`)
 		.then((response) => response.data)
 		.catch(() => console.log("could not delete contact"));
+
+const update = (updatedContact) =>
+	axios
+		.put(`${baseURL}/${updatedContact.id}`, updatedContact)
+		.then((response) => response.data)
+		.catch(() => console.log("could not update contact"));
 
 export default {
 	getAll,
 	create,
 	remove,
+	update,
 };

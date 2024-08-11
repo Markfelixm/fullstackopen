@@ -77,22 +77,39 @@ const App = () => {
 		setFilterTerm(event.target.value);
 	};
 
-	const isNameTaken = () => {
-		return persons.map((person) => person.name).includes(newName);
+	const updateContact = (newContact) => {
+		contactServices.update(newContact).then((updatedContact) => {
+			const newPersons = persons.map((person) =>
+				person.id !== updatedContact.id ? person : updatedContact
+			);
+			setPersons(newPersons);
+			setNewName("");
+			setNewNumber("");
+		});
 	};
 
 	const addContact = (event) => {
 		event.preventDefault();
-		if (isNameTaken()) {
-			alert(`${newName} is already added to phonebook`);
-			return;
-		}
+
 		const newContact = { name: newName, number: newNumber };
-		contactServices.create(newContact).then((createdPerson) => {
-			setPersons([...persons].concat(createdPerson));
-			setNewName("");
-			setNewNumber("");
-		});
+
+		const existingContact = persons.find((person) => person.name === newName);
+		if (existingContact) {
+			if (
+				confirm(
+					`${newName} is already added to phonebook, replace the old number with a new one?`
+				)
+			) {
+				newContact.id = existingContact.id;
+				updateContact(newContact);
+			}
+		} else {
+			contactServices.create(newContact).then((createdPerson) => {
+				setPersons([...persons].concat(createdPerson));
+				setNewName("");
+				setNewNumber("");
+			});
+		}
 	};
 
 	const onDelete = (id) => {
