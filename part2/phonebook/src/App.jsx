@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 import contactServices from "./services/contacts";
 
-const PersonLine = ({ person }) => (
-	<p>
-		{person.name} {person.number}
-	</p>
-);
-
 const Filter = ({ filterTerm, onFilterChange }) => {
 	return (
 		<div>
@@ -36,9 +30,20 @@ const Form = ({
 	);
 };
 
-const Persons = ({ persons }) => {
+const DeleteButton = ({ id, onDelete }) => (
+	<button onClick={() => onDelete(id)}>delete</button>
+);
+
+const PersonLine = ({ person, onDelete }) => (
+	<p>
+		{person.name} {person.number}{" "}
+		<DeleteButton key={person.id} onDelete={onDelete} id={person.id} />
+	</p>
+);
+
+const Persons = ({ persons, onDelete }) => {
 	return persons.map((person) => (
-		<PersonLine key={person.name} person={person} />
+		<PersonLine key={person.id} person={person} onDelete={onDelete} />
 	));
 };
 
@@ -90,6 +95,19 @@ const App = () => {
 		});
 	};
 
+	const onDelete = (id) => {
+		if (
+			confirm(`delete ${persons.find((person) => person.id === id).name} ?`)
+		) {
+			contactServices.remove(id).then((deletedPerson) => {
+				const newPersons = persons.filter(
+					(person) => person.id !== deletedPerson.id
+				);
+				setPersons(newPersons);
+			});
+		}
+	};
+
 	return (
 		<div>
 			<h1>Phonebook</h1>
@@ -103,7 +121,7 @@ const App = () => {
 				onNumberChange={onNumberChange}
 			/>
 			<h2>Numbers</h2>
-			<Persons persons={visiblePersons} />
+			<Persons persons={visiblePersons} onDelete={onDelete} />
 		</div>
 	);
 };
