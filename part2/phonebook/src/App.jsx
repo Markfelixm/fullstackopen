@@ -40,19 +40,24 @@ const App = () => {
 	};
 
 	const updateContact = (newContact) => {
-		contactServices.update(newContact).then((updatedContact) => {
-			const newPersons = persons.map((person) =>
-				person.id !== updatedContact.id ? person : updatedContact
+		contactServices
+			.update(newContact)
+			.then((updatedContact) => {
+				const newPersons = persons.map((person) =>
+					person.id !== updatedContact.id ? person : updatedContact
+				);
+				setPersons(newPersons);
+				setNewName("");
+				setNewNumber("");
+				notify(
+					`updated "${updatedContact.name}" with number "${updatedContact.number}"`,
+					"green",
+					4000
+				);
+			})
+			.catch(() =>
+				notify(`failed to update "${newContact.name}"`, "red", 5000)
 			);
-			setPersons(newPersons);
-			setNewName("");
-			setNewNumber("");
-			notify(
-				`updated ${updatedContact.name}'s number to ${updatedContact.number}`,
-				"green",
-				4000
-			);
-		});
 	};
 
 	const addContact = (event) => {
@@ -71,26 +76,35 @@ const App = () => {
 				updateContact(newContact);
 			}
 		} else {
-			contactServices.create(newContact).then((createdPerson) => {
-				setPersons([...persons].concat(createdPerson));
-				setNewName("");
-				setNewNumber("");
-				notify(`added ${createdPerson.name}`, "green", 4000);
-			});
+			contactServices
+				.create(newContact)
+				.then((createdPerson) => {
+					setPersons([...persons].concat(createdPerson));
+					setNewName("");
+					setNewNumber("");
+					notify(`added "${createdPerson.name}"`, "green", 4000);
+				})
+				.catch(() =>
+					notify(`failed to create "${newContact.name}"`, "red", 5000)
+				);
 		}
 	};
 
 	const onDelete = (id) => {
-		if (
-			confirm(`delete ${persons.find((person) => person.id === id).name} ?`)
-		) {
-			contactServices.remove(id).then((deletedPerson) => {
-				const newPersons = persons.filter(
-					(person) => person.id !== deletedPerson.id
+		const personToDelete = persons.find((person) => person.id === id).name;
+		if (confirm(`delete ${personToDelete} ?`)) {
+			contactServices
+				.remove(id)
+				.then((deletedPerson) => {
+					const newPersons = persons.filter(
+						(person) => person.id !== deletedPerson.id
+					);
+					setPersons(newPersons);
+					notify(`deleted "${deletedPerson.name}"`, "yellow", 4000);
+				})
+				.catch(() =>
+					notify(`failed to delete "${personToDelete}"`, "red", 5000)
 				);
-				setPersons(newPersons);
-				notify(`deleted ${deletedPerson.name}`, "yellow", 4000);
-			});
 		}
 	};
 
