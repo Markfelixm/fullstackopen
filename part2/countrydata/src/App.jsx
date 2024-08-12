@@ -1,35 +1,86 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from "react";
+import countryDataServices from "./services/countrydata";
 
-function App() {
-  const [count, setCount] = useState(0)
+const CountryDetails = ({ country }) => {
+	return (
+		<div>
+			<h2>{country.name.common}</h2>
+			<br />
+			<span>capital: {country.capital.join(", ")}</span>
+			<br />
+			<span>area: {country.area}</span>
+			<h3>languages:</h3>
+			<ul>
+				{Object.values(country.languages).map((language) => (
+					<li key={language}>{language}</li>
+				))}
+			</ul>
+			<img src={country.flags.png} alt={country.flags.alt} />
+		</div>
+	);
+};
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+const Countries = ({ countries }) => {
+	if (countries.length > 10) {
+		return <p>Too many matches, specify another filter</p>;
+	}
+	return (
+		<div>
+			{countries.map((country) => (
+				<p key={country.name.official}>{country.name.common}</p>
+			))}
+		</div>
+	);
+};
 
-export default App
+const Filter = ({ filterTerm, onFilterChange }) => {
+	return (
+		<div>
+			<span>find countries </span>
+			<input type={filterTerm} onChange={onFilterChange} />
+		</div>
+	);
+};
+
+const App = () => {
+	const [filterTerm, setFilterTerm] = useState("");
+	const [allCountries, setAllCountries] = useState([]);
+	const [visibleCountries, setVisibleCountries] = useState([]);
+
+	const initHook = () => {
+		countryDataServices
+			.getAll()
+			.then((countries) => {
+				setAllCountries(countries);
+				setVisibleCountries(countries);
+			})
+			.catch(() => console.log("could not get all countries"));
+	};
+	useEffect(initHook, []);
+
+	const filterHook = () => {
+		const newVisibleCountries = allCountries.filter((country) =>
+			country.name.common.toLowerCase().includes(filterTerm.toLowerCase())
+		);
+		setVisibleCountries(newVisibleCountries);
+	};
+	useEffect(filterHook, [filterTerm]);
+
+	const onFilterChange = (event) => {
+		setFilterTerm(event.target.value);
+	};
+
+	return (
+		<div>
+			<h1>Country Data</h1>
+			<Filter filterTerm={filterTerm} onFilterChange={onFilterChange} />
+			{visibleCountries.length === 1 ? (
+				<CountryDetails country={visibleCountries[0]} />
+			) : (
+				<Countries countries={visibleCountries} />
+			)}
+		</div>
+	);
+};
+
+export default App;
