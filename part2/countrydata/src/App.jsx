@@ -20,14 +20,27 @@ const CountryDetails = ({ country }) => {
 	);
 };
 
-const Countries = ({ countries }) => {
+const Country = ({ country, onShow }) => {
+	return (
+		<p>
+			{country.name.common}
+			<button onClick={() => onShow(country)}>show</button>
+		</p>
+	);
+};
+
+const Countries = ({ countries, onShow }) => {
 	if (countries.length > 10) {
 		return <p>Too many matches, specify another filter</p>;
 	}
 	return (
 		<div>
 			{countries.map((country) => (
-				<p key={country.name.official}>{country.name.common}</p>
+				<Country
+					key={country.name.official}
+					country={country}
+					onShow={onShow}
+				/>
 			))}
 		</div>
 	);
@@ -70,6 +83,10 @@ const App = () => {
 		setFilterTerm(event.target.value);
 	};
 
+	const onShow = (country) => {
+		setVisibleCountries([country]);
+	};
+
 	return (
 		<div>
 			<h1>Country Data</h1>
@@ -77,7 +94,7 @@ const App = () => {
 			{visibleCountries.length === 1 ? (
 				<CountryDetails country={visibleCountries[0]} />
 			) : (
-				<Countries countries={visibleCountries} />
+				<Countries countries={visibleCountries} onShow={onShow} />
 			)}
 		</div>
 	);
