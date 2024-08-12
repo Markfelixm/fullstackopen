@@ -1,57 +1,19 @@
 import { useState, useEffect } from "react";
 import contactServices from "./services/contacts";
-
-const Filter = ({ filterTerm, onFilterChange }) => {
-	return (
-		<div>
-			filter shown with <input type={filterTerm} onChange={onFilterChange} />
-		</div>
-	);
-};
-
-const Form = ({
-	addContact,
-	newName,
-	newNumber,
-	onNameChange,
-	onNumberChange,
-}) => {
-	return (
-		<form onSubmit={addContact}>
-			<div>
-				name: <input value={newName} onChange={onNameChange} />
-				<br />
-				number: <input value={newNumber} onChange={onNumberChange} />
-			</div>
-			<div>
-				<button type="submit">add</button>
-			</div>
-		</form>
-	);
-};
-
-const DeleteButton = ({ id, onDelete }) => (
-	<button onClick={() => onDelete(id)}>delete</button>
-);
-
-const PersonLine = ({ person, onDelete }) => (
-	<p>
-		{person.name} {person.number}{" "}
-		<DeleteButton key={person.id} onDelete={onDelete} id={person.id} />
-	</p>
-);
-
-const Persons = ({ persons, onDelete }) => {
-	return persons.map((person) => (
-		<PersonLine key={person.id} person={person} onDelete={onDelete} />
-	));
-};
+import Form from "./components/Form";
+import Persons from "./components/Persons";
+import Filter from "./components/Filter";
+import Notification from "./components/Notification";
 
 const App = () => {
 	const [persons, setPersons] = useState([]);
 	const [newName, setNewName] = useState("");
 	const [newNumber, setNewNumber] = useState("");
 	const [filterTerm, setFilterTerm] = useState("");
+	const [notification, setNotification] = useState({
+		message: null,
+		color: "green",
+	});
 
 	const hook = () => {
 		contactServices
@@ -85,6 +47,11 @@ const App = () => {
 			setPersons(newPersons);
 			setNewName("");
 			setNewNumber("");
+			notify(
+				`updated ${updatedContact.name}'s number to ${updatedContact.number}`,
+				"green",
+				4000
+			);
 		});
 	};
 
@@ -108,6 +75,7 @@ const App = () => {
 				setPersons([...persons].concat(createdPerson));
 				setNewName("");
 				setNewNumber("");
+				notify(`added ${createdPerson.name}`, "green", 4000);
 			});
 		}
 	};
@@ -121,13 +89,22 @@ const App = () => {
 					(person) => person.id !== deletedPerson.id
 				);
 				setPersons(newPersons);
+				notify(`deleted ${deletedPerson.name}`, "yellow", 4000);
 			});
 		}
+	};
+
+	const notify = (message, color, duration) => {
+		setNotification({ message, color });
+		setTimeout(() => {
+			setNotification({ message: null });
+		}, duration);
 	};
 
 	return (
 		<div>
 			<h1>Phonebook</h1>
+			<Notification notification={notification} />
 			<Filter filterTerm={filterTerm} onFilterChange={onFilterChange} />
 			<h2>Add a New Contact</h2>
 			<Form
