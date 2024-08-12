@@ -6,6 +6,13 @@ const WeatherReport = ({ capital, weather }) => {
 	return (
 		<div>
 			<h3>Weather at {capital}</h3>
+			<p>
+				(Weather information provided by{" "}
+				<a href="https://open-meteo.com/" target="_blank">
+					Open-Meteo
+				</a>
+				)
+			</p>
 			<span>
 				temperature: {weather.temperature} {weather.temperatureUnit}
 			</span>
