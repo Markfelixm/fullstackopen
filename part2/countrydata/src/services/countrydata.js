@@ -8,13 +8,6 @@ const getAll = () =>
 		.then((response) => response.data)
 		.catch(() => console.log("failed to get all"));
 
-const getName = (name) =>
-	axios
-		.get(`${baseURL}name/${name}`)
-		.then((response) => response.data)
-		.catch(() => console.log(`failed to get name "${name}"`));
-
 export default {
 	getAll,
-	getName,
 };

@@ -1,7 +1,19 @@
 import { useEffect, useState } from "react";
 import countryDataServices from "./services/countrydata";
+import weatherServices from "./services/weather";
 
-const CountryDetails = ({ country }) => {
+const WeatherReport = ({ capital, weather }) => {
+	return (
+		<div>
+			<h3>Weather at {capital}</h3>
+			<span>temperature: {weather.temperature} Celsius</span>
+			<br />
+			<span>wind speed: {weather.windSpeed} m/s</span>
+		</div>
+	);
+};
+
+const CountryDetails = ({ country, weather }) => {
 	return (
 		<div>
 			<h2>{country.name.common}</h2>
@@ -16,6 +28,7 @@ const CountryDetails = ({ country }) => {
 				))}
 			</ul>
 			<img src={country.flags.png} alt={country.flags.alt} />
+			<WeatherReport capital={country.capital[0]} weather={weather} />
 		</div>
 	);
 };
@@ -59,6 +72,7 @@ const App = () => {
 	const [filterTerm, setFilterTerm] = useState("");
 	const [allCountries, setAllCountries] = useState([]);
 	const [visibleCountries, setVisibleCountries] = useState([]);
+	const [weather, setWeather] = useState({});
 
 	const initHook = () => {
 		countryDataServices
@@ -79,6 +93,16 @@ const App = () => {
 	};
 	useEffect(filterHook, [filterTerm]);
 
+	const visibleHook = () => {
+		if (visibleCountries.length === 1) {
+			getWeatherAt(
+				visibleCountries[0].capitalInfo.latlng[0],
+				visibleCountries[0].capitalInfo.latlng[1]
+			);
+		}
+	};
+	useEffect(visibleHook, [visibleCountries]);
+
 	const onFilterChange = (event) => {
 		setFilterTerm(event.target.value);
 	};
@@ -87,12 +111,26 @@ const App = () => {
 		setVisibleCountries([country]);
 	};
 
+	const getWeatherAt = (latitude, longitude) => {
+		weatherServices
+			.getAt(latitude, longitude)
+			.then((data) => data.current)
+			.then((current) => {
+				const newWeather = {
+					temperature: current.temperature_2m,
+					windSpeed: current.wind_speed_10m,
+				};
+				setWeather(newWeather);
+			})
+			.catch(() => console.log("could not set weather"));
+	};
+
 	return (
 		<div>
 			<h1>Country Data</h1>
 			<Filter filterTerm={filterTerm} onFilterChange={onFilterChange} />
 			{visibleCountries.length === 1 ? (
-				<CountryDetails country={visibleCountries[0]} />
+				<CountryDetails country={visibleCountries[0]} weather={weather} />
 			) : (
 				<Countries countries={visibleCountries} onShow={onShow} />
 			)}
