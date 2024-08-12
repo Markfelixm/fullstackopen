@@ -6,9 +6,27 @@ const WeatherReport = ({ capital, weather }) => {
 	return (
 		<div>
 			<h3>Weather at {capital}</h3>
-			<span>temperature: {weather.temperature} Celsius</span>
+			<span>
+				temperature: {weather.temperature} {weather.temperatureUnit}
+			</span>
 			<br />
-			<span>wind speed: {weather.windSpeed} m/s</span>
+			<span>
+				relative humidity: {weather.relativeHumidity}{" "}
+				{weather.relativeHumidityUnit}
+			</span>
+			<br />
+			<span>
+				precipitation: {weather.precipitation} {weather.precipitationUnit}
+			</span>
+			<br />
+			<span>
+				cloud cover: {weather.cloudCover} {weather.cloudCoverUnit}
+			</span>
+			<br />
+			<span>
+				wind speed: {weather.windSpeed} {weather.windSpeedUnit}
+			</span>
+			<br />
 		</div>
 	);
 };
@@ -114,11 +132,18 @@ const App = () => {
 	const getWeatherAt = (latitude, longitude) => {
 		weatherServices
 			.getAt(latitude, longitude)
-			.then((data) => data.current)
-			.then((current) => {
+			.then((data) => {
 				const newWeather = {
-					temperature: current.temperature_2m,
-					windSpeed: current.wind_speed_10m,
+					temperature: data.current.temperature_2m,
+					temperatureUnit: data.current_units.temperature_2m,
+					relativeHumidity: data.current.relative_humidity_2m,
+					relativeHumidityUnit: data.current_units.relative_humidity_2m,
+					windSpeed: data.current.wind_speed_10m,
+					windSpeedUnit: data.current_units.wind_speed_10m,
+					precipitation: data.current.precipitation,
+					precipitationUnit: data.current_units.precipitation,
+					cloudCover: data.current.cloud_cover,
+					cloudCoverUnit: data.current_units.cloud_cover,
 				};
 				setWeather(newWeather);
 			})
