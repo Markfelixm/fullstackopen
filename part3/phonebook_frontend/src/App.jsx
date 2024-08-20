@@ -40,7 +40,6 @@ const App = () => {
 	};
 
 	const updateContact = (newContact) => {
-		return; // exercise 3.9: disable changes to contacts
 		contactServices
 			.update(newContact)
 			.then((updatedContact) => {
