@@ -92,7 +92,6 @@ const App = () => {
 	};
 
 	const onDelete = (id) => {
-		return; // exercise 3.9: disable changes to contacts
 		const personToDelete = persons.find((person) => person.id === id).name;
 		if (confirm(`delete ${personToDelete} ?`)) {
 			contactServices
