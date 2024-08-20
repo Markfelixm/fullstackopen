@@ -1,4 +1,4 @@
-[submodule "part3/phonebook"]
-	path = part3/phonebook
+[submodule "part3/phonebook_backend"]
+	path = part3/phonebook_backend
 	url = https://github.com/Markfelixm/fullstackopen-phonebook-server.git
-	branch = main
+  branch = main
