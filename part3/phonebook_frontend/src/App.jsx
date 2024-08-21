@@ -18,7 +18,8 @@ const App = () => {
 	const hook = () => {
 		contactServices
 			.getAll()
-			.then((initialPersons) => setPersons(initialPersons));
+			.then((initialPersons) => setPersons(initialPersons))
+			.catch(() => console.log("could not initialize persons"));
 	};
 
 	useEffect(hook, []);
@@ -55,8 +56,13 @@ const App = () => {
 					4000
 				);
 			})
-			.catch(() =>
-				notify(`failed to update "${newContact.name}"`, "red", 5000)
+			.catch((error) =>
+				notify(
+					`failed to update "${newContact.name} -> \
+						error: ${error.response.data.error}`,
+					"red",
+					5000
+				)
 			);
 	};
 
@@ -84,9 +90,14 @@ const App = () => {
 					setNewNumber("");
 					notify(`added "${createdPerson.name}"`, "green", 4000);
 				})
-				.catch(() =>
-					notify(`failed to create "${newContact.name}"`, "red", 5000)
-				);
+				.catch((error) => {
+					notify(
+						`failed to create "${newContact.name}" -> \
+						error: ${error.response.data.error}`,
+						"red",
+						5000
+					);
+				});
 		}
 	};
 
@@ -102,8 +113,13 @@ const App = () => {
 					setPersons(newPersons);
 					notify(`deleted "${deletedPerson.name}"`, "yellow", 4000);
 				})
-				.catch(() =>
-					notify(`failed to delete "${personToDelete}"`, "red", 5000)
+				.catch((error) =>
+					notify(
+						`failed to delete "${personToDelete} -> \
+						error: ${error.response.data.error}`,
+						"red",
+						5000
+					)
 				);
 		}
 	};
