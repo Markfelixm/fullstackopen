@@ -179,14 +179,14 @@ describe("favorite blog", () => {
 	});
 
 	test("when list contains several blogs, each containing zero likes, returns first blog in list", () => {
-		assert.strictEqual(
+		assert.deepStrictEqual(
 			listHelper.favoriteBlog(blogsWithZeroLikes),
 			blogsWithZeroLikes[0]
 		);
 	});
 
 	test("when list contains two blogs, each containing negative likes, returns the least negative", () => {
-		assert.strictEqual(
+		assert.deepStrictEqual(
 			listHelper.favoriteBlog(blogsWithNegativeLikes),
 			blogsWithNegativeLikes[1]
 		);
@@ -213,6 +213,13 @@ describe("most blogs", () => {
 		assert.deepStrictEqual(listHelper.mostBlogs(blogs), {
 			author: "Robert C. Martin",
 			blogs: 3,
+		});
+	});
+
+	test("when list contains two blogs, returns first author", () => {
+		assert.deepStrictEqual(listHelper.mostBlogs(blogsWithNegativeLikes), {
+			author: "Michael Chan",
+			blogs: 1,
 		});
 	});
 });
