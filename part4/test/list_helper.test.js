@@ -223,3 +223,34 @@ describe("most blogs", () => {
 		});
 	});
 });
+
+describe("most likes", () => {
+	test("when list is undefined", () => {
+		assert.deepStrictEqual(listHelper.mostLikes(undefined), null);
+	});
+
+	test("when list is empty", () => {
+		assert.deepStrictEqual(listHelper.mostLikes([]), null);
+	});
+
+	test("when list has only one blog, returns that author and their total likes", () => {
+		assert.deepStrictEqual(listHelper.mostLikes(listWithOneBlog), {
+			author: "Edsger W. Dijkstra",
+			likes: 5,
+		});
+	});
+
+	test("when list contains several blogs, with repeating authors, returns author with most likes", () => {
+		assert.deepStrictEqual(listHelper.mostLikes(blogs), {
+			author: "Edsger W. Dijkstra",
+			likes: 17,
+		});
+	});
+
+	test("when list several blogs with repeating authors, each blog has zero likes, returns first author", () => {
+		assert.deepStrictEqual(listHelper.mostLikes(blogsWithZeroLikes), {
+			author: "Michael Chan",
+			likes: 0,
+		});
+	});
+});
