@@ -4,8 +4,9 @@
   "description": "store and upvote blogs",
   "main": "index.js",
   "scripts": {
-    "test": "node --test",
-    "dev": "nodemon index.js"
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development nodemon index.js",
+    "test": "NODE_ENV=test node --test"
   },
   "keywords": [
     "blog",
@@ -14,7 +15,8 @@
   "author": "marmulle",
   "license": "MIT",
   "devDependencies": {
-    "nodemon": "^3.1.4"
+    "nodemon": "^3.1.4",
+    "supertest": "^7.0.0"
   },
   "dependencies": {
     "cors": "^2.8.5",
