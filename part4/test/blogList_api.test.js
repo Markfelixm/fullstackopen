@@ -79,6 +79,16 @@ describe("check that at endpoint /api/blogs", () => {
 
 		assert.strictEqual(response.body.length, initialBlogs.length);
 	});
+
+	test("that ids are correcly named", async () => {
+		const response = await api.get("/api/blogs");
+
+		response.body.forEach((blog) => {
+			assert.ok(blog.id);
+			assert.strictEqual(typeof blog.id, "string");
+			assert.strictEqual(blog._id, undefined);
+		});
+	});
 });
 
 after(async () => {
