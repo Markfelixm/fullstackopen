@@ -2,6 +2,7 @@ const { test, after, beforeEach, describe } = require("node:test");
 const assert = require("node:assert");
 const mongoose = require("mongoose");
 const supertest = require("supertest");
+const _ = require("lodash");
 const app = require("../app");
 const Blog = require("../models/blog");
 const helper = require("./test_helper.js");
@@ -38,6 +39,38 @@ describe("check that at endpoint /api/blogs", () => {
 			assert.strictEqual(typeof blog.id, "string");
 			assert.strictEqual(blog._id, undefined);
 		});
+	});
+
+	test("posting a blog saves it", async () => {
+		const newBlog = {
+			title: "Test Title",
+			author: "Test Author",
+			url: "test.url",
+			likes: 42,
+		};
+
+		await api
+			.post("/api/blogs")
+			.send(newBlog)
+			.expect(201)
+			.expect("Content-Type", /application\/json/);
+
+		const allBlogs = await helper.getAllBlogs();
+
+		assert.strictEqual(
+			helper.initialBlogs.length + 1,
+			allBlogs.length,
+			"expected blog length to increase by one"
+		);
+
+		const found = _.find(
+			allBlogs.map(({ id, ...rest }) => {
+				return rest;
+			}),
+			newBlog
+		);
+
+		assert(found, "expected to find posted blog");
 	});
 });
 
