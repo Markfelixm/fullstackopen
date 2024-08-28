@@ -92,6 +92,40 @@ describe("check that at endpoint /api/blogs", () => {
 			"expected likes to default to 0"
 		);
 	});
+
+	test("title property is required", async () => {
+		const noTitle = {
+			author: "Missing Title",
+			url: "no.title",
+			likes: 10,
+		};
+
+		const response = await api.post("/api/blogs").send(noTitle).expect(400);
+
+		assert.strictEqual(
+			response.statusCode,
+			400,
+			"expected statusCode to be 400"
+		);
+		assert.strictEqual(response.status, 400, "expected status to be 400");
+	});
+
+	test("url property is required", async () => {
+		const noURL = {
+			title: "Missing Url",
+			author: "No URL",
+			likes: 10,
+		};
+
+		const response = await api.post("/api/blogs").send(noURL).expect(400);
+
+		assert.strictEqual(
+			response.statusCode,
+			400,
+			"expected statusCode to be 400"
+		);
+		assert.strictEqual(response.status, 400, "expected status to be 400");
+	});
 });
 
 after(async () => {
