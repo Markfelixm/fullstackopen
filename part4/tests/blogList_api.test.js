@@ -72,6 +72,26 @@ describe("check that at endpoint /api/blogs", () => {
 
 		assert(found, "expected to find posted blog");
 	});
+
+	test("missing like property defaults to 0", async () => {
+		const newBlog = {
+			title: "Likeless",
+			author: "Missing like",
+			url: "no.like",
+		};
+
+		const response = await api
+			.post("/api/blogs")
+			.send(newBlog)
+			.expect(201)
+			.expect("Content-Type", /application\/json/);
+
+		assert.strictEqual(
+			response._body.likes,
+			0,
+			"expected likes to default to 0"
+		);
+	});
 });
 
 after(async () => {
