@@ -25,6 +25,16 @@ describe("check that at endpoint /api/blogs", () => {
 			.expect("Content-Type", /application\/json/);
 	});
 
+	test("id property is correcly named", async () => {
+		const response = await api.get("/api/blogs");
+
+		response.body.forEach((blog) => {
+			assert.ok(blog.id);
+			assert.strictEqual(typeof blog.id, "string");
+			assert.strictEqual(blog._id, undefined);
+		});
+	});
+
 	test("can get all blogs", async () => {
 		const response = await api.get("/api/blogs");
 
@@ -43,100 +53,125 @@ describe("check that at endpoint /api/blogs", () => {
 		assert.deepStrictEqual(response.body, allBlogs[2], "expected same blog");
 	});
 
-	test("that ids are correcly named", async () => {
-		const response = await api.get("/api/blogs");
+	describe("posting with", () => {
+		test("a blog saves it", async () => {
+			const newBlog = {
+				title: "Test Title",
+				author: "Test Author",
+				url: "test.url",
+				likes: 42,
+			};
 
-		response.body.forEach((blog) => {
-			assert.ok(blog.id);
-			assert.strictEqual(typeof blog.id, "string");
-			assert.strictEqual(blog._id, undefined);
+			await api
+				.post("/api/blogs")
+				.send(newBlog)
+				.expect(201)
+				.expect("Content-Type", /application\/json/);
+
+			const allBlogs = await helper.getAllBlogs();
+
+			assert.strictEqual(
+				helper.initialBlogs.length + 1,
+				allBlogs.length,
+				"expected blog length to increase by one"
+			);
+
+			const found = _.find(
+				allBlogs.map(({ id, ...rest }) => {
+					return rest;
+				}),
+				newBlog
+			);
+
+			assert(found, "expected to find posted blog");
+		});
+
+		test("missing like property defaults to 0", async () => {
+			const newBlog = {
+				title: "Likeless",
+				author: "Missing like",
+				url: "no.like",
+			};
+
+			const response = await api
+				.post("/api/blogs")
+				.send(newBlog)
+				.expect(201)
+				.expect("Content-Type", /application\/json/);
+
+			assert.strictEqual(
+				response._body.likes,
+				0,
+				"expected likes to default to 0"
+			);
+		});
+
+		test("title property is required", async () => {
+			const noTitle = {
+				author: "Missing Title",
+				url: "no.title",
+				likes: 10,
+			};
+
+			const response = await api.post("/api/blogs").send(noTitle).expect(400);
+
+			assert.strictEqual(
+				response.statusCode,
+				400,
+				"expected statusCode to be 400"
+			);
+			assert.strictEqual(response.status, 400, "expected status to be 400");
+		});
+
+		test("url property is required", async () => {
+			const noURL = {
+				title: "Missing Url",
+				author: "No URL",
+				likes: 10,
+			};
+
+			const response = await api.post("/api/blogs").send(noURL).expect(400);
+
+			assert.strictEqual(
+				response.statusCode,
+				400,
+				"expected statusCode to be 400"
+			);
+			assert.strictEqual(response.status, 400, "expected status to be 400");
 		});
 	});
+	test("updating at a specific id saves it", async () => {
+		const allBlogsBefore = await helper.getAllBlogs();
 
-	test("posting a blog saves it", async () => {
-		const newBlog = {
-			title: "Test Title",
-			author: "Test Author",
-			url: "test.url",
-			likes: 42,
-		};
+		const blogToUpdate = allBlogsBefore[1];
 
-		await api
-			.post("/api/blogs")
-			.send(newBlog)
-			.expect(201)
-			.expect("Content-Type", /application\/json/);
-
-		const allBlogs = await helper.getAllBlogs();
-
-		assert.strictEqual(
-			helper.initialBlogs.length + 1,
-			allBlogs.length,
-			"expected blog length to increase by one"
-		);
-
-		const found = _.find(
-			allBlogs.map(({ id, ...rest }) => {
-				return rest;
-			}),
-			newBlog
-		);
-
-		assert(found, "expected to find posted blog");
-	});
-
-	test("missing like property defaults to 0", async () => {
-		const newBlog = {
-			title: "Likeless",
-			author: "Missing like",
-			url: "no.like",
+		const updatedBlogData = {
+			title: "Updated Title",
+			author: "Updated Author",
+			url: "updated.url",
+			likes: 23,
 		};
 
 		const response = await api
-			.post("/api/blogs")
-			.send(newBlog)
-			.expect(201)
+			.put(`/api/blogs/${blogToUpdate.id}`)
+			.send(updatedBlogData)
+			.expect(200)
 			.expect("Content-Type", /application\/json/);
-
-		assert.strictEqual(
-			response._body.likes,
-			0,
-			"expected likes to default to 0"
+		assert.deepStrictEqual(
+			response.body,
+			{ ...updatedBlogData, id: blogToUpdate.id },
+			"expected response to equal sent"
 		);
-	});
 
-	test("title property is required", async () => {
-		const noTitle = {
-			author: "Missing Title",
-			url: "no.title",
-			likes: 10,
-		};
-
-		const response = await api.post("/api/blogs").send(noTitle).expect(400);
-
-		assert.strictEqual(
-			response.statusCode,
-			400,
-			"expected statusCode to be 400"
+		const blogAtId = await api
+			.get(`/api/blogs/${blogToUpdate.id}`)
+			.expect(200)
+			.expect("Content-Type", /application\/json/);
+		assert.deepStrictEqual(
+			blogAtId.body,
+			{ ...updatedBlogData, id: blogToUpdate.id },
+			"expected blog at id to be updated"
 		);
-		assert.strictEqual(response.status, 400, "expected status to be 400");
-	});
-
-	test("url property is required", async () => {
-		const noURL = {
-			title: "Missing Url",
-			author: "No URL",
-			likes: 10,
-		};
-
-		const response = await api.post("/api/blogs").send(noURL).expect(400);
-
-		assert.strictEqual(
-			response.statusCode,
-			400,
-			"expected statusCode to be 400"
-		);
-		assert.strictEqual(response.status, 400, "expected status to be 400");
 	});
 
 	test("deleting a blog correctly removes it", async () => {

@@ -15,11 +15,24 @@ router.get("/:id", async (request, response) => {
 	}
 });
 
-router.post("/", async (request, response, next) => {
+router.post("/", async (request, response) => {
 	const blog = new Blog(request.body);
 
 	const result = await blog.save();
 	response.status(201).json(result);
+});
+
+router.put("/:id", async (request, response) => {
+	const updatedBlog = await Blog.findByIdAndUpdate(
+		request.params.id,
+		request.body,
+		{ new: true, runValidators: true, context: "query" }
+	);
+	if (updatedBlog) {
+		response.json(updatedBlog);
+	} else {
+		response.status(404).end();
+	}
 });
 
 router.delete("/:id", async (request, response) => {
