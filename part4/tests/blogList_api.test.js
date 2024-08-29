@@ -31,6 +31,18 @@ describe("check that at endpoint /api/blogs", () => {
 		assert.strictEqual(response.body.length, helper.initialBlogs.length);
 	});
 
+	test("can get a specific id", async () => {
+		const allBlogs = await helper.getAllBlogs();
+
+		const idToGet = allBlogs[2].id;
+		const response = await api
+			.get(`/api/blogs/${idToGet}`)
+			.expect(200)
+			.expect("Content-Type", /application\/json/);
+
+		assert.deepStrictEqual(response.body, allBlogs[2], "expected same blog");
+	});
+
 	test("that ids are correcly named", async () => {
 		const response = await api.get("/api/blogs");
 
