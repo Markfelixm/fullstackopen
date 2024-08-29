@@ -126,6 +126,26 @@ describe("check that at endpoint /api/blogs", () => {
 		);
 		assert.strictEqual(response.status, 400, "expected status to be 400");
 	});
+
+	test("deleting a blog correctly removes it", async () => {
+		const allBlogsBefore = await helper.getAllBlogs();
+
+		const idToDelete = allBlogsBefore[0].id;
+		await api.delete(`/api/blogs/${idToDelete}`).expect(204);
+
+		const allBlogsAfter = await helper.getAllBlogs();
+		assert.strictEqual(
+			allBlogsAfter.length,
+			allBlogsBefore.length - 1,
+			"expected to have one less blog after delete"
+		);
+
+		const found = _.find(
+			allBlogsAfter.map((blog) => blog.id),
+			idToDelete
+		);
+		assert(!found, "expected not to find deleted id");
+	});
 });
 
 after(async () => {
