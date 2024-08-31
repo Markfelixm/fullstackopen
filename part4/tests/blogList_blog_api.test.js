@@ -3,9 +3,9 @@ const assert = require("node:assert");
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const _ = require("lodash");
-const app = require("../app");
-const Blog = require("../models/blog");
-const helper = require("./test_helper.js");
+const app = require("../app.js");
+const Blog = require("../models/blog.js");
+const helper = require("./blog_api_test_helper.js");
 
 const api = supertest(app);
 
@@ -17,7 +17,7 @@ beforeEach(async () => {
 	}
 });
 
-describe("check that at endpoint /api/blogs", () => {
+describe("test that at endpoint /api/blogs", () => {
 	test("blogs are returned as json", async () => {
 		await api
 			.get("/api/blogs")
@@ -73,7 +73,7 @@ describe("check that at endpoint /api/blogs", () => {
 			assert.strictEqual(
 				helper.initialBlogs.length + 1,
 				allBlogs.length,
-				"expected blog length to increase by one"
+				"expected blogs length to increase by one"
 			);
 
 			const found = _.find(
@@ -140,6 +140,7 @@ describe("check that at endpoint /api/blogs", () => {
 			assert.strictEqual(response.status, 400, "expected status to be 400");
 		});
 	});
+
 	test("updating at a specific id saves it", async () => {
 		const allBlogsBefore = await helper.getAllBlogs();
 
