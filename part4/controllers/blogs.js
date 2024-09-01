@@ -1,13 +1,17 @@
 const router = require("express").Router();
 const Blog = require("../models/blog");
+const User = require("../models/user");
 
 router.get("/", async (request, response) => {
-	const blogs = await Blog.find({});
+	const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
 	response.json(blogs);
 });
 
 router.get("/:id", async (request, response) => {
-	const blog = await Blog.findById(request.params.id);
+	const blog = await Blog.findById(request.params.id).populate("user", {
+		username: 1,
+		name: 1,
+	});
 	if (blog) {
 		response.json(blog);
 	} else {
@@ -18,8 +22,18 @@ router.get("/:id", async (request, response) => {
 router.post("/", async (request, response) => {
 	const blog = new Blog(request.body);
 
-	const result = await blog.save();
-	response.status(201).json(result);
+	// const user = await User.findById(request.body.userId);
+	// Placeholder user for exercise 4.17
+	const allUsers = await User.find({});
+	const user = await User.findById(allUsers[0].id);
+	// end placeholder
+	blog.user = user.id;
+
+	const savedBlog = await blog.save();
+	user.blogs = user.blogs.concat(savedBlog._id);
+	await user.save();
+
+	response.status(201).json(savedBlog);
 });
 
 router.put("/:id", async (request, response) => {
