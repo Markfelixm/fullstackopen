@@ -1,8 +1,10 @@
 const { test, after, before, beforeEach, describe } = require("node:test");
 const assert = require("node:assert");
+const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const supertest = require("supertest");
 const _ = require("lodash");
+
 const app = require("../app.js");
 const Blog = require("../models/blog.js");
 const User = require("../models/user.js");
@@ -11,29 +13,34 @@ const helper = require("./blog_api_test_helper.js");
 const api = supertest(app);
 
 let validToken;
+let authenticatedUser;
 
 before(async () => {
 	await User.deleteMany({});
 
-	const authenticatedUser = {
+	const validUser = {
 		username: "tester",
 		password: "test",
-		name: "authenticated user",
+		name: "valid user",
 	};
 
-	await api.post("/api/users").send(authenticatedUser).expect(201);
+	await api.post("/api/users").send(validUser).expect(201);
 	const response = await api
 		.post("/api/login")
-		.send(authenticatedUser)
+		.send(validUser)
 		.expect(200)
 		.expect("Content-Type", /application\/json/);
 
 	validToken = response.body.token;
+
+	const decodedToken = jwt.verify(validToken, process.env.SECRET);
+	authenticatedUser = await User.findById(decodedToken.id);
 });
 
 beforeEach(async () => {
 	await Blog.deleteMany({});
 	for (let blog of helper.initialBlogs) {
+		blog.user = authenticatedUser.id;
 		let blogObject = new Blog(blog);
 		await blogObject.save();
 	}
@@ -72,7 +79,13 @@ describe("test that at endpoint /api/blogs", () => {
 			.expect(200)
 			.expect("Content-Type", /application\/json/);
 
-		assert.deepStrictEqual(response.body, allBlogs[2], "expected same blog");
+		const expectedBlog = allBlogs[2];
+		expectedBlog.user = {
+			username: authenticatedUser.username,
+			name: authenticatedUser.name,
+			id: authenticatedUser.id,
+		};
+		assert.deepStrictEqual(response.body, expectedBlog, "expected same blog");
 	});
 
 	describe("posting with", () => {
@@ -173,62 +186,70 @@ describe("test that at endpoint /api/blogs", () => {
 		});
 	});
 
-	// 	test("updating at a specific id saves it", async () => {
-	// 		const allBlogsBefore = await helper.getAllBlogs();
+	test("updating at a specific id saves it", async () => {
+		const allBlogsBefore = await helper.getAllBlogs();
 
-	// 		const blogToUpdate = allBlogsBefore[1];
+		const blogToUpdate = allBlogsBefore[1];
 
-	// 		const updatedBlogData = {
-	// 			title: "Updated Title",
-	// 			author: "Updated Author",
-	// 			url: "updated.url",
-	// 			likes: 23,
-	// 		};
+		const updatedBlogData = {
+			title: "Updated Title",
+			author: "Updated Author",
+			url: "updated.url",
+			likes: 23,
+		};
 
-	// 		const response = await api
-	// 			.put(`/api/blogs/${blogToUpdate.id}`)
-	// 			.send(updatedBlogData)
-	// 			.expect(200)
-	// 			.expect("Content-Type", /application\/json/);
-	// 		assert.deepStrictEqual(
-	// 			response.body,
-	// 			{ ...updatedBlogData, id: blogToUpdate.id },
-	// 			"expected response to equal sent"
-	// 		);
+		const response = await api
+			.put(`/api/blogs/${blogToUpdate.id}`)
+			.send(updatedBlogData)
+			.expect(200)
+			.expect("Content-Type", /application\/json/);
+		assert.deepStrictEqual(
+			response.body,
+			{ ...updatedBlogData, user: authenticatedUser.id, id: blogToUpdate.id },
+			"expected response to equal sent"
+		);
 
-	// 		const blogAtId = await api
-	// 			.get(`/api/blogs/${blogToUpdate.id}`)
-	// 			.expect(200)
-	// 			.expect("Content-Type", /application\/json/);
-	// 		assert.deepStrictEqual(
-	// 			blogAtId.body,
-	// 			{ ...updatedBlogData, id: blogToUpdate.id },
-	// 			"expected blog at id to be updated"
-	// 		);
-	// 	});
+		const blogAtId = await api
+			.get(`/api/blogs/${blogToUpdate.id}`)
+			.expect(200)
+			.expect("Content-Type", /application\/json/);
+		assert.deepStrictEqual(
+			blogAtId.body,
+			{
+				...updatedBlogData,
+				user: {
+					username: authenticatedUser.username,
+					name: authenticatedUser.name,
+					id: authenticatedUser.id,
+				},
+				id: blogToUpdate.id,
+			},
+			"expected blog at id to be updated"
+		);
+	});
 
-	// test("deleting a blog correctly removes it", async () => {
-	// 	const allBlogsBefore = await helper.getAllBlogs();
+	test("deleting a blog correctly removes it", async () => {
+		const allBlogsBefore = await helper.getAllBlogs();
 
-	// 	const idToDelete = allBlogsBefore[0].id;
-	// 	await api
-	// 		.delete(`/api/blogs/${idToDelete}`)
-	// 		.set("Authorization", `Bearer ${validToken}`)
-	// 		.expect(204);
+		const idToDelete = allBlogsBefore[0].id;
+		await api
+			.delete(`/api/blogs/${idToDelete}`)
+			.set("Authorization", `Bearer ${validToken}`)
+			.expect(204);
 
-	// 	const allBlogsAfter = await helper.getAllBlogs();
-	// 	assert.strictEqual(
-	// 		allBlogsAfter.length,
-	// 		allBlogsBefore.length - 1,
-	// 		"expected to have one less blog after delete"
-	// 	);
+		const allBlogsAfter = await helper.getAllBlogs();
+		assert.strictEqual(
+			allBlogsAfter.length,
+			allBlogsBefore.length - 1,
+			"expected to have one less blog after delete"
+		);
 
-	// 	const found = _.find(
-	// 		allBlogsAfter.map((blog) => blog.id),
-	// 		idToDelete
-	// 	);
-	// 	assert(!found, "expected not to find deleted id");
-	// });
+		const found = _.find(
+			allBlogsAfter.map((blog) => blog.id),
+			idToDelete
+		);
+		assert(!found, "expected not to find deleted id");
+	});
 });
 
 after(async () => {
