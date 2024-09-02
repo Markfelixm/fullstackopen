@@ -1,6 +1,5 @@
-const jwt = require("jsonwebtoken");
-
 const router = require("express").Router();
+const middleware = require("../utils/middleware");
 const Blog = require("../models/blog");
 const User = require("../models/user");
 
@@ -21,22 +20,22 @@ router.get("/:id", async (request, response) => {
 	}
 });
 
-router.post("/", async (request, response) => {
-	const decodedToken = jwt.verify(request.token, process.env.SECRET);
-	if (!decodedToken.id) {
-		return response.status(401).json({ error: "token invalid" });
+router.post(
+	"/",
+	middleware.tokenExtractor,
+	middleware.userExtractor,
+	async (request, response) => {
+		const blog = new Blog(request.body);
+		const user = request.user;
+		blog.user = user.id;
+
+		const savedBlog = await blog.save();
+		user.blogs = user.blogs.concat(savedBlog._id);
+		await user.save();
+
+		response.status(201).json(savedBlog);
 	}
-
-	const user = await User.findById(decodedToken.id);
-	const blog = new Blog(request.body);
-	blog.user = user.id;
-
-	const savedBlog = await blog.save();
-	user.blogs = user.blogs.concat(savedBlog._id);
-	await user.save();
-
-	response.status(201).json(savedBlog);
-});
+);
 
 router.put("/:id", async (request, response) => {
 	const updatedBlog = await Blog.findByIdAndUpdate(
@@ -51,25 +50,25 @@ router.put("/:id", async (request, response) => {
 	}
 });
 
-router.delete("/:id", async (request, response) => {
-	const decodedToken = jwt.verify(request.token, process.env.SECRET);
-	if (!decodedToken.id) {
-		return response.status(401).json({ error: "token invalid" });
-	}
+router.delete(
+	"/:id",
+	middleware.tokenExtractor,
+	middleware.userExtractor,
+	async (request, response) => {
+		const user = request.user;
+		const blogToDelete = await Blog.findById(request.params.id);
+		if (
+			blogToDelete &&
+			user &&
+			blogToDelete.user.toString() === user.id.toString()
+		) {
+			await Blog.findByIdAndDelete(request.params.id);
+		} else {
+			return response.status(401).json({ error: "unauthorized user" });
+		}
 
-	const user = await User.findById(decodedToken.id);
-	const blogToDelete = await Blog.findById(request.params.id);
-	if (
-		blogToDelete &&
-		user &&
-		blogToDelete.user.toString() === user.id.toString()
-	) {
-		await Blog.findByIdAndDelete(request.params.id);
-	} else {
-		return response.status(401).json({ error: "unauthorized user" });
+		response.status(204).end();
 	}
-
-	response.status(204).end();
-});
+);
 
 module.exports = router;
