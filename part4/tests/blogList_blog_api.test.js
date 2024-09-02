@@ -153,8 +153,7 @@ describe("test that at endpoint /api/blogs", () => {
 			const response = await api
 				.post("/api/blogs")
 				.set("Authorization", `Bearer ${validToken}`)
-				.send(noTitle)
-				.expect(400);
+				.send(noTitle);
 
 			assert.strictEqual(
 				response.statusCode,
@@ -174,8 +173,7 @@ describe("test that at endpoint /api/blogs", () => {
 			const response = await api
 				.post("/api/blogs")
 				.set("Authorization", `Bearer ${validToken}`)
-				.send(noURL)
-				.expect(400);
+				.send(noURL);
 
 			assert.strictEqual(
 				response.statusCode,
@@ -183,6 +181,30 @@ describe("test that at endpoint /api/blogs", () => {
 				"expected statusCode to be 400"
 			);
 			assert.strictEqual(response.status, 400, "expected status to be 400");
+		});
+
+		test("missing valid authentication header fails to save blog", async () => {
+			const validBlog = {
+				title: "valid Title",
+				author: "valid Author",
+				url: "valid.url",
+				likes: 20,
+			};
+
+			const response = await api.post("/api/blogs").send(validBlog);
+			assert.strictEqual(
+				response.statusCode,
+				401,
+				"expected statusCode to be 401"
+			);
+			assert.strictEqual(response.status, 401, "expected status to be 401");
+
+			const allBlogs = await helper.getAllBlogs();
+			assert.strictEqual(
+				allBlogs.length,
+				helper.initialBlogs.length,
+				"expected not to save unauthorized blog"
+			);
 		});
 	});
 
