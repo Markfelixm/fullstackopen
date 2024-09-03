@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import blogService from "../services/blogs";
 
-const BlogForm = ({ blogs, setBlogs }) => {
+const BlogForm = ({ blogs, setBlogs, notify }) => {
 	const [title, setTitle] = useState("");
 	const [author, setAuthor] = useState("");
 	const [url, setUrl] = useState("");
@@ -22,12 +22,17 @@ const BlogForm = ({ blogs, setBlogs }) => {
 		try {
 			const createdBlog = await blogService.create(newBlog);
 			console.log("created blog", createdBlog);
+			notify(
+				`created blog "${createdBlog.title}" by "${createdBlog.author}"`,
+				"green"
+			);
 			setTitle("");
 			setAuthor("");
 			setUrl("");
 			setBlogs([...blogs].concat(createdBlog));
 		} catch (error) {
 			console.log("creation error:", error);
+			notify(`failed to create blog: "${error.response.data.error}"`, "red");
 		}
 	};
 
