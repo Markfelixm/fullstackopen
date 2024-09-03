@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Blog from "./components/Blog";
+import BlogForm from "./components/BlogForm";
 import loginService from "./services/login";
 import blogService from "./services/blogs";
 
@@ -21,6 +22,7 @@ const App = () => {
 		if (loggedInUserJSON) {
 			const user = JSON.parse(loggedInUserJSON);
 			setUser(user);
+			blogService.setToken(user.token);
 		}
 	}, []);
 
@@ -36,6 +38,7 @@ const App = () => {
 				password,
 			});
 			window.localStorage.setItem("loggedInUser", JSON.stringify(user));
+			blogService.setToken(user.token);
 			setUser(user);
 			setUsername("");
 			setPassword("");
@@ -65,6 +68,10 @@ const App = () => {
 		<div>
 			<h2>blogs</h2>
 			<Logout username={user.username} handleLogout={handleLogout} />
+			<hr />
+			<h3>create a new blog</h3>
+			<BlogForm blogs={blogs} setBlogs={setBlogs} />
+			<hr />
 			{blogs.map((blog) => (
 				<Blog key={blog.id} blog={blog} />
 			))}
