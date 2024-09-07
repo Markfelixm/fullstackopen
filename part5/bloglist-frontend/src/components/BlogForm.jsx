@@ -7,10 +7,6 @@ const BlogForm = ({ handleCreateBlog, notify }) => {
 	const [author, setAuthor] = useState("");
 	const [url, setUrl] = useState("");
 
-	const onTitleChange = ({ target }) => setTitle(target.value);
-	const onAuthorChange = ({ target }) => setAuthor(target.value);
-	const onUrlChange = ({ target }) => setUrl(target.value);
-
 	const createHandler = async (event) => {
 		event.preventDefault();
 
@@ -44,7 +40,7 @@ const BlogForm = ({ handleCreateBlog, notify }) => {
 					type="text"
 					value={title}
 					name="Title"
-					onChange={onTitleChange}
+					onChange={({ target }) => setTitle(target.value)}
 				/>
 			</div>
 			<div>
@@ -53,12 +49,17 @@ const BlogForm = ({ handleCreateBlog, notify }) => {
 					type="text"
 					value={author}
 					name="author"
-					onChange={onAuthorChange}
+					onChange={({ target }) => setAuthor(target.value)}
 				/>
 			</div>
 			<div>
 				url
-				<input type="text" value={url} name="url" onChange={onUrlChange} />
+				<input
+					type="text"
+					value={url}
+					name="url"
+					onChange={({ target }) => setUrl(target.value)}
+				/>
 			</div>
 			<button type="submit">create</button>
 		</form>
