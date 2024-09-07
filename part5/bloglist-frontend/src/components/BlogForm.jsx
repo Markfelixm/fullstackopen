@@ -2,7 +2,7 @@ import { useState } from "react";
 
 import blogService from "../services/blogs";
 
-const BlogForm = ({ blogs, setBlogs, notify }) => {
+const BlogForm = ({ handleCreateBlog, notify }) => {
 	const [title, setTitle] = useState("");
 	const [author, setAuthor] = useState("");
 	const [url, setUrl] = useState("");
@@ -11,7 +11,7 @@ const BlogForm = ({ blogs, setBlogs, notify }) => {
 	const onAuthorChange = ({ target }) => setAuthor(target.value);
 	const onUrlChange = ({ target }) => setUrl(target.value);
 
-	const handleCreateBlog = async (event) => {
+	const createHandler = async (event) => {
 		event.preventDefault();
 
 		const newBlog = {
@@ -29,7 +29,7 @@ const BlogForm = ({ blogs, setBlogs, notify }) => {
 			setTitle("");
 			setAuthor("");
 			setUrl("");
-			setBlogs([...blogs].concat(createdBlog));
+			handleCreateBlog(createdBlog);
 		} catch (error) {
 			console.log("creation error:", error);
 			notify(`failed to create blog: "${error.response.data.error}"`, "red");
@@ -37,7 +37,7 @@ const BlogForm = ({ blogs, setBlogs, notify }) => {
 	};
 
 	return (
-		<form onSubmit={handleCreateBlog}>
+		<form onSubmit={createHandler}>
 			<div>
 				title
 				<input

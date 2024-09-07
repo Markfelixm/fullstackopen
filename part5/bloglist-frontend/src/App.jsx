@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
+import Togglable from "./components/Togglable";
 import Login from "./components/Login";
 import Logout from "./components/Logout";
 import Blog from "./components/Blog";
@@ -68,6 +69,13 @@ const App = () => {
 		notify("logged out", "green");
 	};
 
+	const toggableRef = useRef();
+
+	const handleCreateBlog = (createdBlog) => {
+		setBlogs([...blogs].concat(createdBlog));
+		toggableRef.current.toggleVisibility();
+	};
+
 	return user === null ? (
 		<div>
 			<h2>Log in to application</h2>
@@ -86,8 +94,10 @@ const App = () => {
 			<Notification notification={notification} />
 			<Logout username={user.username} handleLogout={handleLogout} />
 			<hr />
-			<h3>create a new blog</h3>
-			<BlogForm blogs={blogs} setBlogs={setBlogs} notify={notify} />
+			<Togglable buttonLabel={"create a blog"} ref={toggableRef}>
+				<h3>create a new blog</h3>
+				<BlogForm handleCreateBlog={handleCreateBlog} notify={notify} />
+			</Togglable>
 			<hr />
 			{blogs.map((blog) => (
 				<Blog key={blog.id} blog={blog} />
