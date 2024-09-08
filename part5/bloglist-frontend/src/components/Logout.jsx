@@ -1,7 +1,7 @@
-const Logout = ({ username, handleLogout }) => {
+const Logout = ({ name, handleLogout }) => {
 	return (
 		<p>
-			{username} is logged in
+			{name} is logged in
 			<button onClick={handleLogout}>logout</button>
 		</p>
 	);

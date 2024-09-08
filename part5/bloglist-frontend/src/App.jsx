@@ -92,7 +92,7 @@ const App = () => {
 		<div>
 			<h2>blogs</h2>
 			<Notification notification={notification} />
-			<Logout username={user.username} handleLogout={handleLogout} />
+			<Logout name={user.name} handleLogout={handleLogout} />
 			<hr />
 			<Togglable buttonLabel={"create a blog"} ref={toggableRef}>
 				<h3>create a new blog</h3>
