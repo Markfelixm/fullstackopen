@@ -76,6 +76,25 @@ const App = () => {
 		toggableRef.current.toggleVisibility();
 	};
 
+	const incrementLike = async (blog) => {
+		try {
+			const updatedBlog = await blogService.update({
+				...blog,
+				likes: blog.likes + 1,
+			});
+			console.log("liked blog", updatedBlog);
+			notify("liked blog", "green");
+
+			const updatedBlogs = blogs.map((blog) =>
+				blog.id === updatedBlog.id ? updatedBlog : blog
+			);
+			setBlogs(updatedBlogs);
+		} catch (e) {
+			console.log("like error", updatedBlog);
+			notify("like error: could not update blog", "red");
+		}
+	};
+
 	return user === null ? (
 		<div>
 			<h2>Log in to application</h2>
@@ -100,7 +119,7 @@ const App = () => {
 			</Togglable>
 			<hr />
 			{blogs.map((blog) => (
-				<Blog key={blog.id} blog={blog} />
+				<Blog key={blog.id} blog={blog} handleLike={incrementLike} />
 			))}
 		</div>
 	);

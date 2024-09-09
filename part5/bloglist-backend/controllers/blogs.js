@@ -42,7 +42,10 @@ router.put("/:id", async (request, response) => {
 		request.params.id,
 		request.body,
 		{ new: true, runValidators: true, context: "query" }
-	);
+	).populate("user", {
+		username: 1,
+		name: 1,
+	});
 	if (updatedBlog) {
 		response.json(updatedBlog);
 	} else {
