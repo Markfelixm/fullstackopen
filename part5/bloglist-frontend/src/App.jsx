@@ -118,9 +118,11 @@ const App = () => {
 				<BlogForm handleCreateBlog={handleCreateBlog} notify={notify} />
 			</Togglable>
 			<hr />
-			{blogs.map((blog) => (
-				<Blog key={blog.id} blog={blog} handleLike={incrementLike} />
-			))}
+			{blogs
+				.sort((a, b) => b.likes - a.likes)
+				.map((blog) => (
+					<Blog key={blog.id} blog={blog} handleLike={incrementLike} />
+				))}
 		</div>
 	);
 };
