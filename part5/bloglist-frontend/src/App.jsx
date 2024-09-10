@@ -95,6 +95,19 @@ const App = () => {
 		}
 	};
 
+	const deleteBlog = async (id) => {
+		try {
+			await blogService.remove(id);
+			const updatedBlogs = blogs.filter((blog) => blog.id !== id);
+			setBlogs(updatedBlogs);
+			console.log(`deleted blog at id: ${id}`);
+			notify("deleted blog", "green");
+		} catch (e) {
+			console.log("delete error", e.response.data.error);
+			notify(`delete error: ${e.response.data.error}`, "red");
+		}
+	};
+
 	return user === null ? (
 		<div>
 			<h2>Log in to application</h2>
@@ -121,7 +134,12 @@ const App = () => {
 			{blogs
 				.sort((a, b) => b.likes - a.likes)
 				.map((blog) => (
-					<Blog key={blog.id} blog={blog} handleLike={incrementLike} />
+					<Blog
+						key={blog.id}
+						blog={blog}
+						handleLike={incrementLike}
+						handleDelete={deleteBlog}
+					/>
 				))}
 		</div>
 	);
