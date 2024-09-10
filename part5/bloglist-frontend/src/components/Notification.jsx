@@ -1,4 +1,8 @@
 const Notification = ({ notification }) => {
+	if (notification.message === null) {
+		return null;
+	}
+
 	const style = {
 		color: notification.color,
 		background: "lightgrey",
@@ -8,10 +12,6 @@ const Notification = ({ notification }) => {
 		padding: "10px",
 		marginBottom: "10px",
 	};
-
-	if (notification.message === null) {
-		return null;
-	}
 
 	return (
 		<div className="error" style={style}>

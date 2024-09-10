@@ -17,6 +17,7 @@ const App = () => {
 	const [notification, setNotification] = useState({
 		message: null,
 		color: "green",
+		timeoutID: null,
 	});
 
 	useEffect(() => {
@@ -33,10 +34,14 @@ const App = () => {
 	}, []);
 
 	const notify = (message, color) => {
-		setNotification({ message, color });
-		setTimeout(() => {
+		if (notification.timeoutID) {
+			clearTimeout(notification.timeoutID);
+		}
+
+		const timeoutID = setTimeout(() => {
 			setNotification({ message: null });
 		}, 5000);
+		setNotification({ message, color, timeoutID });
 	};
 
 	const onUsernameChange = ({ target }) => setUsername(target.value);
