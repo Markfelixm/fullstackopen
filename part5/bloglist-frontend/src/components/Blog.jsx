@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const Blog = ({ blog, handleLike, handleDelete }) => {
+const Blog = ({ blog, handleLike, handleRemove, user }) => {
 	const [showDetails, setShowDetails] = useState(false);
 
 	const blogStyle = {
@@ -16,6 +16,18 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
 			return <button onClick={() => setShowDetails(false)}>hide</button>;
 		} else {
 			return <button onClick={() => setShowDetails(true)}>view</button>;
+		}
+	};
+
+	const RemoveButton = () => {
+		if (user.username === blog.user.username) {
+			return (
+				<div>
+					<button onClick={() => handleRemove(blog.id)}>remove</button>
+				</div>
+			);
+		} else {
+			return "";
 		}
 	};
 
@@ -36,8 +48,7 @@ const Blog = ({ blog, handleLike, handleDelete }) => {
 			</span>
 			<br />
 			<span>{blog.user.name}</span>
-			<br />
-			<button onClick={() => handleDelete(blog.id)}>delete</button>
+			<RemoveButton />
 		</div>
 	);
 

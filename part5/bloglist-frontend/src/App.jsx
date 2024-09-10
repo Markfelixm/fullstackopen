@@ -95,16 +95,16 @@ const App = () => {
 		}
 	};
 
-	const deleteBlog = async (id) => {
+	const removeBlog = async (id) => {
 		try {
 			await blogService.remove(id);
 			const updatedBlogs = blogs.filter((blog) => blog.id !== id);
 			setBlogs(updatedBlogs);
-			console.log(`deleted blog at id: ${id}`);
-			notify("deleted blog", "green");
+			console.log(`removed blog at id: ${id}`);
+			notify("removed blog", "green");
 		} catch (e) {
-			console.log("delete error", e.response.data.error);
-			notify(`delete error: ${e.response.data.error}`, "red");
+			console.log("remove error", e.response.data.error);
+			notify(`remove error: ${e.response.data.error}`, "red");
 		}
 	};
 
@@ -138,7 +138,8 @@ const App = () => {
 						key={blog.id}
 						blog={blog}
 						handleLike={incrementLike}
-						handleDelete={deleteBlog}
+						handleRemove={removeBlog}
+						user={user}
 					/>
 				))}
 		</div>
