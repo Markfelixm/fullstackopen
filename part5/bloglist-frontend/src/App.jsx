@@ -95,7 +95,7 @@ const App = () => {
 			);
 			setBlogs(updatedBlogs);
 		} catch (e) {
-			console.log("like error", updatedBlog);
+			console.log("like error", e.response.data.error);
 			notify("like error: could not update blog", "red");
 		}
 	};
