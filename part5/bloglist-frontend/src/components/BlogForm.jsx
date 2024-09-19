@@ -1,8 +1,6 @@
 import { useState } from "react";
 
-import blogService from "../services/blogs";
-
-const BlogForm = ({ handleCreateBlog, notify }) => {
+const BlogForm = ({ createBlogHandler }) => {
 	const [title, setTitle] = useState("");
 	const [author, setAuthor] = useState("");
 	const [url, setUrl] = useState("");
@@ -16,24 +14,16 @@ const BlogForm = ({ handleCreateBlog, notify }) => {
 			url: url,
 		};
 		try {
-			const createdBlog = await blogService.create(newBlog);
-			console.log("created blog", createdBlog);
-			notify(
-				`created blog "${createdBlog.title}" by "${createdBlog.author}"`,
-				"green"
-			);
+			await createBlogHandler(newBlog);
+
 			setTitle("");
 			setAuthor("");
 			setUrl("");
-			handleCreateBlog(createdBlog);
-		} catch (error) {
-			console.log("creation error:", error);
-			notify(`failed to create blog: "${error.response.data.error}"`, "red");
-		}
+		} catch {}
 	};
 
 	return (
-		<form onSubmit={createHandler}>
+		<form onSubmit={createHandler} className="blogForm">
 			<div>
 				title
 				<input
@@ -41,6 +31,7 @@ const BlogForm = ({ handleCreateBlog, notify }) => {
 					value={title}
 					name="Title"
 					onChange={({ target }) => setTitle(target.value)}
+					id="title-input"
 				/>
 			</div>
 			<div>
@@ -50,6 +41,7 @@ const BlogForm = ({ handleCreateBlog, notify }) => {
 					value={author}
 					name="author"
 					onChange={({ target }) => setAuthor(target.value)}
+					id="author-input"
 				/>
 			</div>
 			<div>
@@ -59,6 +51,7 @@ const BlogForm = ({ handleCreateBlog, notify }) => {
 					value={url}
 					name="url"
 					onChange={({ target }) => setUrl(target.value)}
+					id="url-input"
 				/>
 			</div>
 			<button type="submit">create</button>

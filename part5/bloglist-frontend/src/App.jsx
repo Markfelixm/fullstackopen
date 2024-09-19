@@ -76,9 +76,21 @@ const App = () => {
 
 	const toggableRef = useRef();
 
-	const handleCreateBlog = (createdBlog) => {
-		setBlogs([...blogs].concat(createdBlog));
-		toggableRef.current.toggleVisibility();
+	const createBlogHandler = async (newBlog) => {
+		try {
+			const createdBlog = await blogService.create(newBlog);
+			console.log("created blog", createdBlog);
+			notify(
+				`created blog "${createdBlog.title}" by "${createdBlog.author}"`,
+				"green"
+			);
+			setBlogs([...blogs].concat(createdBlog));
+			toggableRef.current.toggleVisibility();
+		} catch (error) {
+			console.log("creation error:", error);
+			notify(`failed to create blog: "${error.response.data.error}"`, "red");
+			throw error;
+		}
 	};
 
 	const incrementLike = async (blog) => {
@@ -139,7 +151,7 @@ const App = () => {
 			<hr />
 			<Togglable buttonLabel={"create a blog"} ref={toggableRef}>
 				<h3>create a new blog</h3>
-				<BlogForm handleCreateBlog={handleCreateBlog} notify={notify} />
+				<BlogForm createBlogHandler={createBlogHandler} />
 			</Togglable>
 			<hr />
 			{blogs
