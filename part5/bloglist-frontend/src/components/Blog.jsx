@@ -54,17 +54,17 @@ const Blog = ({ blog, handleLike, handleRemove, user }) => {
 	);
 
 	return (
-		<div style={blogStyle}>
+		<div style={blogStyle} className="blog">
 			{base()}
 			{showDetails ? details() : ""}
 		</div>
 	);
 };
 
-Blog.PropTypes = {
-	blog: PropTypes.string.isRequired,
-	handleLike: PropTypes.string.isRequired,
-	handleRemove: PropTypes.string.isRequired,
+Blog.propTypes = {
+	blog: PropTypes.object.isRequired,
+	handleLike: PropTypes.func.isRequired,
+	handleRemove: PropTypes.func.isRequired,
 	user: PropTypes.string.isRequired,
 };
 
