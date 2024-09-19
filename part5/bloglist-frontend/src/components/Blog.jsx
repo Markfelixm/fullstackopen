@@ -65,7 +65,7 @@ Blog.propTypes = {
 	blog: PropTypes.object.isRequired,
 	handleLike: PropTypes.func.isRequired,
 	handleRemove: PropTypes.func.isRequired,
-	user: PropTypes.string.isRequired,
+	user: PropTypes.object.isRequired,
 };
 
 export default Blog;
