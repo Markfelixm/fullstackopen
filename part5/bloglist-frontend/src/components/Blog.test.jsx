@@ -46,4 +46,28 @@ describe("Testing Blog component", () => {
 		expect(div).toHaveTextContent(blog.url);
 		expect(div).toHaveTextContent(blog.likes.toString());
 	});
+
+	test("correctly registers like button events", async () => {
+		const mockHandler = vi.fn();
+
+		const { container } = render(
+			<Blog
+				blog={blog}
+				handleLike={mockHandler}
+				handleRemove={undefined}
+				user={blogUser}
+			/>
+		);
+
+		const div = container.querySelector(".blog");
+
+		const user = userEvent.setup();
+		const viewButton = screen.getByText("view");
+		await user.click(viewButton);
+		const likeButton = screen.getByText("like");
+		await user.click(likeButton);
+		await user.click(likeButton);
+
+		expect(mockHandler.mock.calls).toHaveLength(2);
+	});
 });
